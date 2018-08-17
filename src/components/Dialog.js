@@ -7,8 +7,9 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
-import { Grid, Typography, Button, Divider } from '@material-ui/core';
+import { Grid, Typography, Button, Divider, IconButton } from '@material-ui/core';
 import skip from '../assets/skip.png'
+import edit from '../assets/edit.png'
 import TextField from '@material-ui/core/TextField';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
@@ -39,12 +40,22 @@ const styles = theme => ({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    add : {
+        marginTop : 10
+    }
 });
 
 class SimpleDialog extends React.Component {
+
+    state = {
+        items : 1
+    }
+
+    
   
     render() {
-      const { classes, onClose, open, handleProceed, status, onAbort } = this.props;
+      const { classes, onClose, open, handleProceed, status, onAbort, onEdit } = this.props;
+      const {items} =this.state;
 
       const { TextArea } = Input;
   
@@ -101,17 +112,78 @@ class SimpleDialog extends React.Component {
                 </Grid>
 
                 :
-
+                <div>
                 <Grid container spacing={24}>
-                    <Grid item xs={8} className={classes.left}>
-                        <Typography variant='heading'>Product Details</Typography>
+                    <Grid item xs={4} className={classes.left}>
+                        <Typography variant='heading'>Customer Details</Typography>
                     </Grid>
-                    
+                    <Grid item xs={6}>
+                        <div className={classNames('row',classes.right)}>
+                            <Typography variant='caption'>Customer Details</Typography>
+                        </div>
+                        <div className={classNames('row',classes.right)}>
+                            <Typography variant='body2'>ROHAN PANDA</Typography>
+                        </div>
+                        <div className={classNames('row',classes.right)}>
+                            <Typography variant='body1'>rohan.panda1@gmail.com</Typography>
+                        </div>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <div className={classes.right}>
+                            <IconButton variant="outlined" color="primary" onClick={onEdit}>
+                                <img src={edit} className={classes.printImg}/>
+                            </IconButton>
+                        </div>
+                    </Grid>
                     <Grid item xs={12}>
                         <Divider />
                     </Grid>
 
+                    {/* Heading */}
+                    <Grid item xs={6} className={classes.left}>
+                        <Typography variant='subheading'>Item</Typography>
+                    </Grid>
+                    <Grid item xs={3} className={classes.center}>
+                        <Typography variant='subheading'>Quantity</Typography>
+                    </Grid>
+                    <Grid item xs={3} className={classes.center}>
+                        <Typography variant='subheading'>Price</Typography>
+                        <img src={ruppee} width='30' height='30'/>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Divider />
+                    </Grid>
                 </Grid>
+
+                {/* Items */}
+                
+
+                    {[...Array(items)].map((x, i) =>
+                        // <ObjectRow key={i} />
+                        <Grid container spacing={24}>
+                            <Grid item xs={6} className={classes.left}>
+                                <Input placeholder="Enter Item Name" />
+                            </Grid>
+                            <Grid item xs={3} className={classes.center}>
+                                <Input placeholder="0.00" />
+                            </Grid>
+                            <Grid item xs={3} className={classes.center}>
+                                <Input placeholder="0.00" />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Divider />
+                            </Grid>
+                        </Grid>
+                    )}
+
+                    <div className={classes.right}>
+                        <Button variant="outlined" color="primary" className={classes.add} onClick={() => this.setState({items : items + 1})}>
+                            Add Item
+                        </Button>
+                    </div>
+                    
+                </div>
 
             }
           </DialogContent>

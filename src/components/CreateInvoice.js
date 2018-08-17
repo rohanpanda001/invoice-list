@@ -48,6 +48,9 @@ class CreateInvoice extends React.Component {
         this.setState({ status: 'product' });
     };
 
+    onEdit = () => {
+        this.setState({ status: 'customer' });
+    };
 
     render() {
         const { classes, theme, open } = this.props;
@@ -64,6 +67,7 @@ class CreateInvoice extends React.Component {
                     onClose={this.handleClose}
                     handleProceed={this.handleProceed}
                     onAbort = {this.onAbort}
+                    onEdit = {this.onEdit}
                 />
             </div>  
         </div>
