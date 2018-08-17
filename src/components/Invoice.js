@@ -7,11 +7,17 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { Grid } from '@material-ui/core';
+import { Grid, Divider } from '@material-ui/core';
+import Row from './itemRow';
+import ruppee from '../assets/ruppee.png';
 
 const styles = {
   card: {
     minWidth: 275,
+  },
+  img : {
+    width : 20,
+    height : 20
   },
   bullet: {
     display: 'inline-block',
@@ -40,17 +46,23 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  vertical : {
+      marginTop : 10,
+      marginBottom : 10
+  },
+  top : {
+      paddingTop : 20
+  }
 };
 
 function SimpleCard(props) {
   const { classes } = props;
-  const bull = <span className={classes.bullet}>•</span>;
 
   return (
     <div>
       <Card className={classes.card}>
         <CardContent>
-            <div className={classes.header}>
+            <div className={classes.title}>
                 <Grid container spacing={24}>
                     <Grid item xs={7}>
                         <Typography variant='headline'>INVOICE</Typography>
@@ -79,6 +91,66 @@ function SimpleCard(props) {
                     </Grid>
                 </Grid>
             </div>
+
+            <div className={classes.header}>  
+                <Divider />
+                <Grid container spacing={24} className={classes.vertical}>
+                    <Grid item xs={6} className={classes.left}>
+                        <Typography variant='title'>Item</Typography>
+                    </Grid>
+                    <Grid item xs={3} className={classes.center}>
+                        <Typography variant='title'>Quantity</Typography>
+                    </Grid>
+                    <Grid item xs={3} className={classes.center}>
+                        <Typography variant='title'>Price</Typography>
+                        <img src={ruppee} width='30' height='30'/>
+                    </Grid>
+                </Grid>
+                <Divider />
+            </div>
+
+            <div className={classes.body}>  
+                <Row />
+                <Row />
+                <Row />
+                <Row />
+            </div>
+
+            <Grid container spacing={24} className={classes.vertical}>
+                <Grid item xs={6} className={classes.left}>
+                </Grid>
+                <Grid item xs={3} >
+                    <div className={classNames('row',classes.center)}>
+                        <Typography variant='body1'>Sub Total</Typography>
+                    </div>
+                    <div className={classNames('row',classes.center)}>
+                        <Typography variant='body1'>Tax (12.36%)</Typography>
+                    </div>
+                    <div className={classNames('row',classes.center)}>
+                        <Typography variant='body1'>Discount (10%)</Typography>
+                    </div>
+
+                    <div className={classNames('row',classes.center,classes.top)}>
+                        <Typography variant='title'>Grand Total</Typography>
+                    </div>
+                    
+                    
+                </Grid>
+                <Grid item xs={3}>
+                    <div className={classNames('row',classes.center)}>
+                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>35233</Typography>
+                    </div>
+                    <div className={classNames('row',classes.center)}>
+                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>423423</Typography>
+                    </div>
+                    <div className={classNames('row',classes.center)}>
+                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>423423</Typography>
+                    </div>
+                    <div className={classNames('row',classes.center,classes.top)}>
+                        <img src={ruppee} className={classes.img}/><Typography variant='title'>3272387</Typography>
+                    </div>
+                </Grid>
+            </Grid>
 
         </CardContent>
       </Card>

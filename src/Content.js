@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
+import Drawer from './components/Drawer.js';
 import Invoice from './components/Invoice';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -68,25 +68,24 @@ class PersistentDrawer extends React.Component {
 
   render() {
     const { classes, theme, open } = this.props;
-    // const { anchor, open } = this.state;
 
-    const drawer = (
-      <Drawer
-        variant="persistent"
-        anchor='left'
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
+    // const drawer = (
+    //   <Drawer
+    //     variant="persistent"
+    //     anchor='left'
+    //     open={open}
+    //     classes={{
+    //       paper: classes.drawerPaper,
+    //     }}
+    //   >
         
-      </Drawer>
-    );
+    //   </Drawer>
+    // );
 
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          {drawer}
+          <Drawer open={open} />
           <main
             className={classNames(classes.content, classes[`content-left`], {
               [classes.contentShift]: open,
