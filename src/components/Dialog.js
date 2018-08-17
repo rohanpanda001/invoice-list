@@ -74,24 +74,43 @@ class SimpleDialog extends React.Component {
 
     itemChange = (event) => {
 
-        const { product, items, subtotal } = this.state;
+        const { product, items, subtotal, total, tax, discount } = this.state;
         const name = event.target.name;
         const val = event.target.value;
+
+        var totalPrice = total, new_tax = tax, new_discount=discount, new_subtotal=0.00;
+
         if (name === "tax")
         {
             product[name]=val;
-            var taxPercent = parseFloat(val)
-            var tax = taxPercent * subtotal / 100;
-            var total = subtotal + tax;
-            this.setState({tax, total});
+            if(val!=="")
+            {
+                var taxPercent = parseFloat(val)
+                new_tax = taxPercent * subtotal / 100;
+
+                this.setState({tax : new_tax});
+            }
+            else
+            {
+                new_tax = 0;
+                this.setState({tax : 0});
+            }
         }
         else if (name === "discount")
         {
             product[name]=val;
-            var DisPercent = parseFloat(val)
-            var discount = DisPercent * subtotal / 100;
-            var total = subtotal - discount;
-            this.setState({discount, total});
+            if(val!=="")
+            {
+                var DisPercent = parseFloat(val)
+                new_discount = DisPercent * subtotal / 100;
+
+                this.setState({discount : new_discount});
+            }
+            else
+            {
+                new_discount = 0;
+                this.setState({discount : 0});
+            }
 
         }
         else 
@@ -101,12 +120,14 @@ class SimpleDialog extends React.Component {
             if (items[id] === undefined)
                 items[id]={}
             items[id][name]=val;
+
         }
+        
+        items.map((item) => new_subtotal += parseInt(item['price']));
+        this.setState({ product, items, subtotal : new_subtotal});
 
-        var price = 0.00;
-        items.map((item) => price = price + parseInt(item['price']));
+        this.setState({total : new_subtotal + new_tax - new_discount})
 
-        this.setState({ product, items, subtotal : price });
 
     }
 
