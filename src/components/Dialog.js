@@ -54,12 +54,38 @@ class SimpleDialog extends React.Component {
     state = {
         customer : {},
         product : {},
-        items: [],
+        items : [{}],
         tax : 0.00,
         discount : 0.00,
         subtotal : 0.00,
         total : 0.00,
+        status : 'customer',
+        number : 1,
     }
+
+    increaseItem = () => {
+        var items = this.state.items;
+        items.push({})
+        console.log(items)
+        this.setState({ number: this.state.number + 1,  items});
+    };
+
+    onAbort = () => {
+        this.props.handleClose();
+        this.setState({ status : 'customer', number : 1 });
+    };
+
+    handleProceed = () => {
+        this.setState({ status: 'product' });
+    };
+
+    onEdit = () => {
+        this.setState({ status: 'customer' });
+    };
+
+    handleSave = () => {
+        console.log('Save clicked')
+    };
 
     handleChange = (event) => {
 
@@ -74,15 +100,15 @@ class SimpleDialog extends React.Component {
 
     itemChange = (event) => {
 
-        const { product, items, subtotal, total, tax, discount } = this.state;
+        const { product, items, subtotal, tax, discount } = this.state;
         const name = event.target.name;
         const val = event.target.value;
 
-        var totalPrice = total, new_tax = tax, new_discount=discount, new_subtotal=0.00;
+        var new_tax = tax, new_discount=discount, new_subtotal=0.00;
 
         if (name === "tax")
         {
-            product[name]=val;
+            product[name]=val; 
             if(val!=="")
             {
                 var taxPercent = parseFloat(val)
@@ -117,8 +143,8 @@ class SimpleDialog extends React.Component {
         {
             const id = event.target.id;
 
-            if (items[id] === undefined)
-                items[id]={}
+            // if (items[id] === undefined)
+            //     items[id]={}
             items[id][name]=val;
 
         }
@@ -133,17 +159,18 @@ class SimpleDialog extends React.Component {
 
   
     render() {
-      const { classes, onClose, open, handleProceed, status, onAbort, onEdit, number, increaseItem, handleSave } = this.props;
+      const { classes , open, handleClose} = this.props;
 
-      const { customer, product} = this.state;
+      const { customer, product, items, number, status} = this.state;
 
       const { TextArea } = Input;
+
   
       return (
 
         <Dialog
           open={open}
-          onClose={onClose}
+          onClose={handleClose}
           aria-labelledby="form-dialog-title"
         >
           {/* <DialogTitle id="form-dialog-title">Create Invoice</DialogTitle>    */}
@@ -159,7 +186,7 @@ class SimpleDialog extends React.Component {
                     </Grid>
                     <Grid item xs={4}>
                         <div className={classes.right}>
-                            <Button variant="outlined" color="primary" onClick={handleProceed}>
+                            <Button variant="outlined" color="primary" onClick={this.handleProceed}>
                                 Skip
                                 <img src={skip} className={classes.printImg}/>
                             </Button>
@@ -212,7 +239,7 @@ class SimpleDialog extends React.Component {
                     </Grid>
                     <Grid item xs={2}>
                         <div className={classes.right}>
-                            <IconButton variant="outlined" color="primary" onClick={onEdit}>
+                            <IconButton variant="outlined" color="primary" onClick={this.onEdit}>
                                 <img src={edit} className={classes.printImg}/>
                             </IconButton>
                         </div>
@@ -239,19 +266,18 @@ class SimpleDialog extends React.Component {
                 </Grid>
 
                 {/* Items */}
-                
 
                     {[...Array(number)].map((x, i) =>
                         // <ObjectRow key={i} />
                         <Grid container spacing={24} key={i}>
                             <Grid item xs={6} className={classes.left}>
-                                <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i}/>
+                                <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i} value={items[i].name}/>
                             </Grid>
                             <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i}/>
+                                <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i} value={items[i].quantity}/>
                             </Grid>
                             <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i}/>
+                                <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i} value={items[i].price}/>
                             </Grid>
                             <Grid item xs={12}>
                                 <Divider />
@@ -260,7 +286,7 @@ class SimpleDialog extends React.Component {
                     )}
 
                     <div className={classes.right}>
-                        <Button variant="outlined" color="primary" className={classes.add} onClick={increaseItem}>
+                        <Button variant="outlined" color="primary" className={classes.add} onClick={this.increaseItem}>
                             Add Item
                         </Button>
                     </div>
@@ -294,10 +320,10 @@ class SimpleDialog extends React.Component {
 
             {status === "customer" ?
                 <DialogActions className={classes.footer}>
-                    <Button onClick={onAbort} color="primary">
+                    <Button onClick={this.onAbort} color="primary">
                     Cancel
                     </Button>
-                    <Button onClick={handleProceed} color="primary" variant='raised'>
+                    <Button onClick={this.handleProceed} color="primary" variant='raised'>
                     Proceed
                     </Button>
                 </DialogActions>
@@ -320,7 +346,7 @@ class SimpleDialog extends React.Component {
                     <Grid container spacing={24}>
                         <Grid item xs={3}>
                             <div className={classNames('row',classes.left)}>
-                                <Typography variant='heading' color='textSecondary'>Tax</Typography>
+                                <Typography color='textSecondary'>Tax</Typography>
                             </div>
                             <div className={classNames('row',classes.left)}>
                                 <img src={ruppee} width='20' height='20'/>
@@ -329,7 +355,7 @@ class SimpleDialog extends React.Component {
                         </Grid>
                         <Grid item xs={3}>
                             <div className={classNames('row',classes.left)}>
-                                <Typography variant='heading' color='textSecondary'>Discount</Typography>
+                                <Typography color='textSecondary'>Discount</Typography>
                             </div>
                             <div className={classNames('row',classes.left)}>
                                 <img src={ruppee} width='20' height='20'/>
@@ -338,7 +364,7 @@ class SimpleDialog extends React.Component {
                         </Grid>
                         <Grid item xs={4}>
                             <div className={classNames('row',classes.right)}>
-                                <Typography variant='heading' color='textSecondary'>Grand Total</Typography>
+                                <Typography color='textSecondary'>Grand Total</Typography>
                             </div>
                             <div className={classNames('row',classes.right)}>
                                 <img src={ruppee} width='20' height='20'/>
@@ -346,7 +372,7 @@ class SimpleDialog extends React.Component {
                             </div>
                         </Grid>
                         <Grid item xs={2} className={classes.center}>
-                            <Button onClick={handleSave} color="primary" variant='raised'>
+                            <Button onClick={this.handleSave} color="primary" variant='raised'>
                                 Save
                             </Button>
                         </Grid>

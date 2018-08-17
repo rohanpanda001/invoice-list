@@ -52,10 +52,10 @@ function Item(props) {
                     <Typography variant='title'>Invoice # - 123</Typography>
                 </div>
                 <div className={classNames('row',classes.left)}>
-                    <Typography variant='heading'>Items - 05</Typography>
+                    <Typography >Items - 05</Typography>
                 </div>
                 <div className={classNames('row',classes.left)}>
-                    <Typography variant='heading' color='primary'>Rohan Panda</Typography>
+                    <Typography color='primary'>Rohan Panda</Typography>
                 </div>
             </Grid>
             <Grid item xs={4}>

@@ -4,8 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import InvoiceItem from './InvoiceItem';
+import { Input } from 'antd';
+import 'antd/dist/antd.css';
 
 const drawerWidth = 350;
+const Search = Input.Search;
 
 
 const styles = {
@@ -30,6 +33,10 @@ const styles = {
       marginTop : 10,
       marginBottom : 10
   },
+  search : {
+      margin : 20,
+      width : '90%'
+  }
 };
 
 function Row(props) {
@@ -44,6 +51,12 @@ function Row(props) {
                     paper: classes.drawerPaper,
                 }}
             >
+                <Search
+                    placeholder="Search Invoice"
+                    onSearch={value => console.log(value)}
+                    enterButton
+                    className={classes.search}
+                />
                 <List component="nav">
                     <InvoiceItem />
                     <InvoiceItem />

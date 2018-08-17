@@ -27,14 +27,8 @@ class CreateInvoice extends React.Component {
 
     state = {
         open: false,
-        status : 'customer',
-        number : 1,
     };
 
-    increaseItem = () => {
-        this.setState({ number: this.state.number + 1 });
-    };
-    
     handleClickOpen = () => {
         this.setState({
             open: true,
@@ -43,22 +37,6 @@ class CreateInvoice extends React.Component {
     
     handleClose = () => {
         this.setState({ open: false });
-    };
-
-    onAbort = () => {
-        this.setState({ open: false, status : 'customer', number : 1 });
-    };
-
-    handleProceed = () => {
-        this.setState({ status: 'product' });
-    };
-
-    onEdit = () => {
-        this.setState({ status: 'customer' });
-    };
-
-    handleSave = () => {
-        console.log('Save clicked')
     };
 
     render() {
@@ -72,14 +50,7 @@ class CreateInvoice extends React.Component {
                 </Button>
                 <Dialog
                     open={this.state.open}
-                    status={this.state.status}
-                    onClose={this.handleClose}
-                    handleProceed={this.handleProceed}
-                    onAbort = {this.onAbort}
-                    onEdit = {this.onEdit}
-                    number={this.state.number}
-                    increaseItem={this.increaseItem}
-                    handleSave={this.handleSave}
+                    handleClose={this.handleClose}
                 />
             </div>  
         </div>
