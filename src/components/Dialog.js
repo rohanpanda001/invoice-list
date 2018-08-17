@@ -41,21 +41,19 @@ const styles = theme => ({
         justifyContent: 'center',
     },
     add : {
-        marginTop : 10
+        marginTop : 10,
+        marginBottom : 10
+    },
+    footer : {
+        margin : 20
     }
 });
 
 class SimpleDialog extends React.Component {
 
-    state = {
-        items : 1
-    }
-
-    
   
     render() {
-      const { classes, onClose, open, handleProceed, status, onAbort, onEdit } = this.props;
-      const {items} =this.state;
+      const { classes, onClose, open, handleProceed, status, onAbort, onEdit, items, increaseItem, handleSave } = this.props;
 
       const { TextArea } = Input;
   
@@ -115,7 +113,7 @@ class SimpleDialog extends React.Component {
                 <div>
                 <Grid container spacing={24}>
                     <Grid item xs={4} className={classes.left}>
-                        <Typography variant='heading'>Customer Details</Typography>
+                        <Typography variant='heading'>Product Details</Typography>
                     </Grid>
                     <Grid item xs={6}>
                         <div className={classNames('row',classes.right)}>
@@ -178,23 +176,96 @@ class SimpleDialog extends React.Component {
                     )}
 
                     <div className={classes.right}>
-                        <Button variant="outlined" color="primary" className={classes.add} onClick={() => this.setState({items : items + 1})}>
+                        <Button variant="outlined" color="primary" className={classes.add} onClick={increaseItem}>
                             Add Item
                         </Button>
                     </div>
+
+                    <Grid container spacing={24}>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                        <Grid item xs={3} className={classes.left}>
+                            <Input placeholder="Tax" addonAfter="%"/>
+                        </Grid>
+                        <Grid item xs={3} className={classes.center}>
+                            <Input placeholder="Discount" addonAfter="%"/>
+                        </Grid>
+                        <Grid item xs={4} className={classes.right}>
+                            <Typography variant='body2' color='textSecondary'>Sub Total</Typography>
+                        </Grid>
+                        <Grid item xs={2} className={classes.center}>
+                            <img src={ruppee} width='20' height='20'/>
+                            <Typography variant='body1'>534</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                    </Grid>
                     
                 </div>
 
             }
           </DialogContent>
-          <DialogActions>
-            <Button onClick={onAbort} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleProceed} color="primary" variant='raised'>
-              Proceed
-            </Button>
-          </DialogActions>
+
+            {status === "customer" ?
+                <DialogActions className={classes.footer}>
+                    <Button onClick={onAbort} color="primary">
+                    Cancel
+                    </Button>
+                    <Button onClick={handleProceed} color="primary" variant='raised'>
+                    Proceed
+                    </Button>
+                </DialogActions>
+
+                :
+
+                <div className={classes.footer}>
+                    {/* <div className={classes.left}>
+                        <Button onClick={onAbort} color="primary">
+                        Cancel
+                        </Button>
+                    </div>
+                    <Button onClick={onAbort} color="primary">
+                    Cancel
+                    </Button>
+                    <Button onClick={handleSave} color="primary" variant='raised'>
+                    Save
+                    </Button> */}
+                    
+                    <Grid container spacing={24}>
+                        <Grid item xs={3}>
+                            <div className={classNames('row',classes.left)}>
+                                <Typography variant='heading' color='textSecondary'>Tax</Typography>
+                            </div>
+                            <div className={classNames('row',classes.left)}>
+                                <img src={ruppee} width='20' height='20'/>
+                                <Typography variant='body2'>0.00</Typography>
+                            </div>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <div className={classNames('row',classes.left)}>
+                                <Typography variant='heading' color='textSecondary'>Discount</Typography>
+                            </div>
+                            <div className={classNames('row',classes.left)}>
+                                <img src={ruppee} width='20' height='20'/>
+                                <Typography variant='body2'>0.00</Typography>
+                            </div>
+                        </Grid>
+                        <Grid item xs={4} className={classes.right}>
+                            <Button onClick={onAbort} color="primary">
+                                Cancel
+                            </Button>
+                        </Grid>
+                        <Grid item xs={2} className={classes.center}>
+                            <Button onClick={handleSave} color="primary" variant='raised'>
+                                Save
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    
+                </div>
+            }
         </Dialog>
       );
     }
