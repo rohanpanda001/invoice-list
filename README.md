@@ -1,7 +1,13 @@
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the project directory, first run:
+
+### `npm install`
+
+This will install all the npm packages and dependencies used in the project.
+
+Then run this to start the project:
 
 ### `npm start`
 
