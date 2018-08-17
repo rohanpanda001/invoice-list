@@ -6,6 +6,7 @@ import Drawer from './components/Drawer.js';
 import Invoice from './components/Invoice';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import CreateInvoice from './components/CreateInvoice';
 
 const drawerWidth = 350;
 
@@ -63,25 +64,12 @@ const styles = theme => ({
   },
 });
 
-class PersistentDrawer extends React.Component {
+class Content extends React.Component {
 
 
   render() {
     const { classes, theme, open } = this.props;
-
-    // const drawer = (
-    //   <Drawer
-    //     variant="persistent"
-    //     anchor='left'
-    //     open={open}
-    //     classes={{
-    //       paper: classes.drawerPaper,
-    //     }}
-    //   >
-        
-    //   </Drawer>
-    // );
-
+    
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
@@ -92,11 +80,7 @@ class PersistentDrawer extends React.Component {
               [classes[`contentShift-left`]]: open,
             })}
           >
-            <div className={classes.drawerHeader}>
-              <Button variant="fab" color="primary" aria-label="Add" className={classes.button}>
-                <AddIcon />
-              </Button>
-            </div>
+            <CreateInvoice />
             <Invoice />
             
           </main>
@@ -106,9 +90,9 @@ class PersistentDrawer extends React.Component {
   }
 }
 
-PersistentDrawer.propTypes = {
+Content.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(PersistentDrawer);
+export default withStyles(styles, { withTheme: true })(Content);

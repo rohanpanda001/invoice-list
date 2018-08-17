@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { Grid, Divider } from '@material-ui/core';
 import Row from './itemRow';
 import ruppee from '../assets/ruppee.png';
+import print from '../assets/print.png';
 
 const styles = {
   card: {
@@ -18,6 +19,11 @@ const styles = {
   img : {
     width : 20,
     height : 20
+  },
+  printImg : {
+    width : 20,
+    height : 20,
+    marginRight : 5
   },
   bullet: {
     display: 'inline-block',
@@ -69,7 +75,7 @@ function SimpleCard(props) {
                         <Typography variant='subheading'>INVOICE</Typography>
                         <Typography variant='caption'>INVOICE</Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                             <div className={classNames('row',classes.right)}>
                                 <Typography variant='caption'>Customer Details</Typography>
                             </div>
@@ -81,10 +87,10 @@ function SimpleCard(props) {
                             </div>
 
                     </Grid>
-                    <Grid item xs={1}>
+                    <Grid item xs={2}>
                         <div className={classes.center}>
                         <Button variant="outlined" color="primary" className={classes.button}>
-                            Print
+                            <img src={print} className={classes.printImg}/>Print
                         </Button>
                         </div>
 
