@@ -3,19 +3,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Invoice from './components/Invoice';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
 
-const drawerWidth = 240;
+const drawerWidth = 350;
 
 const styles = theme => ({
   root: {
@@ -45,6 +37,7 @@ const styles = theme => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: '0 8px',
+    marginBottom : 10,
     ...theme.mixins.toolbar,
   },
   content: {
@@ -100,8 +93,13 @@ class PersistentDrawer extends React.Component {
               [classes[`contentShift-left`]]: open,
             })}
           >
-            <div className={classes.drawerHeader} />
-            <Typography>{'You think water moves fast? You should see ice.'}</Typography>
+            <div className={classes.drawerHeader}>
+              <Button variant="fab" color="primary" aria-label="Add" className={classes.button}>
+                <AddIcon />
+              </Button>
+            </div>
+            <Invoice />
+            
           </main>
         </div>
       </div>
