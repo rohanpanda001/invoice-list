@@ -64,14 +64,16 @@ class SimpleDialog extends React.Component {
           onClose={onClose}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Create Invoice</DialogTitle>
+          {/* <DialogTitle id="form-dialog-title">Create Invoice</DialogTitle>    */}
           <DialogContent>
+          <Typography variant='display1'>Create Invoice</Typography>
+          <Typography variant='heading'>Order No. 1234</Typography>
 
             {status === "customer" ?
 
                 <Grid container spacing={24}>
                     <Grid item xs={8} className={classes.left}>
-                        <Typography variant='heading'>Customer Details</Typography>
+                        <Typography variant='title'>Customer Details</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <div className={classes.right}>
@@ -113,7 +115,7 @@ class SimpleDialog extends React.Component {
                 <div>
                 <Grid container spacing={24}>
                     <Grid item xs={4} className={classes.left}>
-                        <Typography variant='heading'>Product Details</Typography>
+                        <Typography variant='title'>Product Details</Typography>
                     </Grid>
                     <Grid item xs={6}>
                         <div className={classNames('row',classes.right)}>
