@@ -54,7 +54,11 @@ class SimpleDialog extends React.Component {
     state = {
         customer : {},
         product : {},
-        items: []
+        items: [],
+        tax : 0.00,
+        discount : 0.00,
+        subtotal : 0.00,
+        total : 0.00,
     }
 
     handleChange = (event) => {
@@ -70,11 +74,26 @@ class SimpleDialog extends React.Component {
 
     itemChange = (event) => {
 
-        const { product, items } = this.state;
+        const { product, items, subtotal } = this.state;
         const name = event.target.name;
         const val = event.target.value;
-        if (name === "tax" || name === "discount")
+        if (name === "tax")
+        {
             product[name]=val;
+            var taxPercent = parseFloat(val)
+            var tax = taxPercent * subtotal / 100;
+            var total = subtotal + tax;
+            this.setState({tax, total});
+        }
+        else if (name === "discount")
+        {
+            product[name]=val;
+            var DisPercent = parseFloat(val)
+            var discount = DisPercent * subtotal / 100;
+            var total = subtotal - discount;
+            this.setState({discount, total});
+
+        }
         else 
         {
             const id = event.target.id;
@@ -82,13 +101,13 @@ class SimpleDialog extends React.Component {
             if (items[id] === undefined)
                 items[id]={}
             items[id][name]=val;
-
-
         }
-        this.setState({ product, items });
 
+        var price = 0.00;
+        items.map((item) => price = price + parseInt(item['price']));
 
-        // console.log(product, items)
+        this.setState({ product, items, subtotal : price });
+
     }
 
   
@@ -240,7 +259,7 @@ class SimpleDialog extends React.Component {
                         </Grid>
                         <Grid item xs={2} className={classes.center}>
                             <img src={ruppee} width='20' height='20'/>
-                            <Typography variant='body1'>534</Typography>
+                            <Typography variant='body1'>{this.state.subtotal}</Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <Divider />
@@ -284,7 +303,7 @@ class SimpleDialog extends React.Component {
                             </div>
                             <div className={classNames('row',classes.left)}>
                                 <img src={ruppee} width='20' height='20'/>
-                                <Typography variant='body2'>0.00</Typography>
+                                <Typography variant='body2'>{this.state.tax}</Typography>
                             </div>
                         </Grid>
                         <Grid item xs={3}>
@@ -293,13 +312,17 @@ class SimpleDialog extends React.Component {
                             </div>
                             <div className={classNames('row',classes.left)}>
                                 <img src={ruppee} width='20' height='20'/>
-                                <Typography variant='body2'>0.00</Typography>
+                                <Typography variant='body2'>{this.state.discount}</Typography>
                             </div>
                         </Grid>
-                        <Grid item xs={4} className={classes.right}>
-                            <Button onClick={onAbort} color="primary">
-                                Cancel
-                            </Button>
+                        <Grid item xs={4}>
+                            <div className={classNames('row',classes.right)}>
+                                <Typography variant='heading' color='textSecondary'>Grand Total</Typography>
+                            </div>
+                            <div className={classNames('row',classes.right)}>
+                                <img src={ruppee} width='20' height='20'/>
+                                <Typography variant='body2'>{this.state.total}</Typography>
+                            </div>
                         </Grid>
                         <Grid item xs={2} className={classes.center}>
                             <Button onClick={handleSave} color="primary" variant='raised'>
