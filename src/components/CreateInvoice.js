@@ -28,11 +28,11 @@ class CreateInvoice extends React.Component {
     state = {
         open: false,
         status : 'customer',
-        items : 1,
+        number : 1,
     };
 
     increaseItem = () => {
-        this.setState({ items: this.state.items + 1 });
+        this.setState({ number: this.state.number + 1 });
     };
     
     handleClickOpen = () => {
@@ -46,7 +46,7 @@ class CreateInvoice extends React.Component {
     };
 
     onAbort = () => {
-        this.setState({ open: false, status : 'customer', items : 1 });
+        this.setState({ open: false, status : 'customer', number : 1 });
     };
 
     handleProceed = () => {
@@ -77,7 +77,7 @@ class CreateInvoice extends React.Component {
                     handleProceed={this.handleProceed}
                     onAbort = {this.onAbort}
                     onEdit = {this.onEdit}
-                    items={this.state.items}
+                    number={this.state.number}
                     increaseItem={this.increaseItem}
                     handleSave={this.handleSave}
                 />

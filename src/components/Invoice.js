@@ -89,7 +89,7 @@ function SimpleCard(props) {
                     </Grid>
                     <Grid item xs={2}>
                         <div className={classes.center}>
-                        <Button variant="outlined" color="primary" className={classes.button}>
+                        <Button variant="outlined" color="primary" className={classes.button} onClick={() => window.print()}>
                             <img src={print} className={classes.printImg}/>Print
                         </Button>
                         </div>

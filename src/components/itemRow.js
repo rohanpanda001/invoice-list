@@ -35,7 +35,7 @@ function Row(props) {
         <div className={classes.root}>
             <Grid container spacing={24} className={classes.vertical}>
                 <Grid item xs={6} className={classes.left}>
-                    <Typography variant='body1'>Prawn adn Chicken Sui Mui</Typography>
+                    <Typography variant='body1'>Prawn and Chicken Sui Mui</Typography>
                 </Grid>
                 <Grid item xs={3} className={classes.center}>
                     <Typography variant='body1'>2</Typography>

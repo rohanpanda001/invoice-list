@@ -51,9 +51,51 @@ const styles = theme => ({
 
 class SimpleDialog extends React.Component {
 
+    state = {
+        customer : {},
+        product : {},
+        items: []
+    }
+
+    handleChange = (event) => {
+
+        const { customer } = this.state;
+        const name = event.target.name;
+        const val = event.target.value;
+        customer[name]=val;
+        this.setState({ customer });
+
+        // console.log(customer)
+    }
+
+    itemChange = (event) => {
+
+        const { product, items } = this.state;
+        const name = event.target.name;
+        const val = event.target.value;
+        if (name === "tax" || name === "discount")
+            product[name]=val;
+        else 
+        {
+            const id = event.target.id;
+
+            if (items[id] === undefined)
+                items[id]={}
+            items[id][name]=val;
+
+
+        }
+        this.setState({ product, items });
+
+
+        // console.log(product, items)
+    }
+
   
     render() {
-      const { classes, onClose, open, handleProceed, status, onAbort, onEdit, items, increaseItem, handleSave } = this.props;
+      const { classes, onClose, open, handleProceed, status, onAbort, onEdit, number, increaseItem, handleSave } = this.props;
+
+      const { customer, product} = this.state;
 
       const { TextArea } = Input;
   
@@ -91,22 +133,22 @@ class SimpleDialog extends React.Component {
 
                     <Grid item xs= {6}>
                         <Typography>Name</Typography>
-                        <Input placeholder="Full Name" />
+                        <Input placeholder="Full Name" onChange={this.handleChange} name='name' value={customer['name']}/>
                     </Grid>
                     <Grid item xs= {6}>
                         <Typography>Phone</Typography>
-                        <Input addonBefore="+91" placeholder="Phone Number" />
+                        <Input addonBefore="+91" placeholder="Phone Number" onChange={this.handleChange} name='phone' value={customer['phone']}/>
                     </Grid>
                     <Grid item xs={6}>
                         <Typography>Address</Typography>
-                        <TextArea placeholder="Complete Address" autosize={{ minRows: 6, maxRows: 10 }} />
+                        <TextArea placeholder="Complete Address" autosize={{ minRows: 6, maxRows: 10 }} onChange={this.handleChange} name='address' value={customer['address']}/>
                     </Grid>
                     <Grid item xs= {6}>
                         <Typography>Email</Typography>
-                        <Input placeholder="Email Address" />
+                        <Input placeholder="Email Address" onChange={this.handleChange} name='email' value={customer['email']}/>
                         <div style={{height : 20}}></div>
                         <Typography>Pincode</Typography>
-                        <Input placeholder="Pincode" />
+                        <Input placeholder="Pincode" onChange={this.handleChange} name='pincode' value={customer['pincode']}/>
                     </Grid>
 
                 </Grid>
@@ -159,17 +201,17 @@ class SimpleDialog extends React.Component {
                 {/* Items */}
                 
 
-                    {[...Array(items)].map((x, i) =>
+                    {[...Array(number)].map((x, i) =>
                         // <ObjectRow key={i} />
-                        <Grid container spacing={24}>
+                        <Grid container spacing={24} key={i}>
                             <Grid item xs={6} className={classes.left}>
-                                <Input placeholder="Enter Item Name" />
+                                <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i}/>
                             </Grid>
                             <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" />
+                                <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i}/>
                             </Grid>
                             <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" />
+                                <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i}/>
                             </Grid>
                             <Grid item xs={12}>
                                 <Divider />
@@ -188,10 +230,10 @@ class SimpleDialog extends React.Component {
                             <Divider />
                         </Grid>
                         <Grid item xs={3} className={classes.left}>
-                            <Input placeholder="Tax" addonAfter="%"/>
+                            <Input placeholder="Tax" addonAfter="%" name='tax' onChange={this.itemChange} value={product.tax}/>
                         </Grid>
                         <Grid item xs={3} className={classes.center}>
-                            <Input placeholder="Discount" addonAfter="%"/>
+                            <Input placeholder="Discount" addonAfter="%" name='discount' onChange={this.itemChange} value={product.discount}/>
                         </Grid>
                         <Grid item xs={4} className={classes.right}>
                             <Typography variant='body2' color='textSecondary'>Sub Total</Typography>
