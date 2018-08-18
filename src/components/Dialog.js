@@ -14,6 +14,8 @@ import TextField from '@material-ui/core/TextField';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
 import ruppee from '../assets/ruppee.png';
+import axios from 'axios'
+import createHash from 'hash-generator';
 
 const styles = theme => ({
     right: {
@@ -63,10 +65,15 @@ class SimpleDialog extends React.Component {
         number : 1,
     }
 
+    componentDidMount() {
+        
+        var hash = createHash(16);
+        this.setState({order_no : hash})
+    }
+
     increaseItem = () => {
         var items = this.state.items;
         items.push({})
-        console.log(items)
         this.setState({ number: this.state.number + 1,  items});
     };
 
@@ -84,7 +91,64 @@ class SimpleDialog extends React.Component {
     };
 
     handleSave = () => {
-        console.log('Save clicked')
+        const {customer, product, items, order_no} = this.state;
+        // console.log(customer)
+
+        var invoiceDetails = new FormData();
+
+        invoiceDetails.set("invoice_no", order_no);
+
+        for(var key in customer) 
+        {
+            invoiceDetails.set(key, customer[key]);
+        }
+        for(var key in product) 
+        {
+            invoiceDetails.set(key, product[key]);
+        }
+
+        // Set Invoice Details
+        axios({
+            method: 'post',
+            url: 'http://localhost:5000/createInvoice',
+            data: invoiceDetails,
+            config: { headers: {'Content-Type': 'multipart/form-data' }}
+        })
+        .then(function (res) {
+            console.log(res.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        var itemDetails = new FormData();
+        itemDetails.set("invoice_no", order_no);
+        items.map((item) => {
+            for(var key in item) 
+            {
+                itemDetails.set(key, item[key]);
+            }
+        });
+
+        // Set Item Details
+        axios({
+            method: 'post',
+            url: 'http://localhost:5000/createItems',
+            data: itemDetails,
+            config: { headers: {'Content-Type': 'multipart/form-data' }}
+        })
+        .then(function (res) {
+            console.log(res.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        var hash = createHash(16);
+        this.setState({order_no : hash})
+
+        this.props.handleClose();
+
     };
 
     handleChange = (event) => {
@@ -161,7 +225,7 @@ class SimpleDialog extends React.Component {
     render() {
       const { classes , open, handleClose} = this.props;
 
-      const { customer, product, items, number, status} = this.state;
+      const { customer, product, items, number, status, order_no} = this.state;
 
       const { TextArea } = Input;
 
@@ -176,7 +240,7 @@ class SimpleDialog extends React.Component {
           {/* <DialogTitle id="form-dialog-title">Create Invoice</DialogTitle>    */}
           <DialogContent>
           <Typography variant='display1'>Create Invoice</Typography>
-          <Typography variant='heading'>Order No. 1234</Typography>
+          <Typography variant='heading'>Order No. {order_no}</Typography>
 
             {status === "customer" ?
 
@@ -231,10 +295,10 @@ class SimpleDialog extends React.Component {
                             <Typography variant='caption'>Customer Details</Typography>
                         </div>
                         <div className={classNames('row',classes.right)}>
-                            <Typography variant='body2'>ROHAN PANDA</Typography>
+                            <Typography variant='body2'>{ customer['name'] ? customer['name'] : "--"}</Typography>
                         </div>
                         <div className={classNames('row',classes.right)}>
-                            <Typography variant='body1'>rohan.panda1@gmail.com</Typography>
+                            <Typography variant='body1'>{customer['email'] ? customer['email'] : "--"}</Typography>
                         </div>
                     </Grid>
                     <Grid item xs={2}>
