@@ -93,7 +93,6 @@ class Content extends React.Component {
     })
     .then(res => {
       var data = res.data, obj;
-      console.log(data)
       var list = [];
       data.map((invoice) => {
         obj = {};

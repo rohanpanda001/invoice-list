@@ -139,54 +139,54 @@ class SimpleDialog extends React.Component {
             data: invoiceDetails,
             config: { headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'multipart/form-data', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
         })
-        .then(function (res) {
-            console.log(res.data);
+        .then(res => {
+
+            // Set Item Details
+
+            // var duration = items.length * 1000
+            
+            var itemDetails = new FormData();
+            items.map((item) => {
+                
+                // console.log(itemDetails)
+
+                this.setState(
+                {
+                    loading: true,
+                    success : false
+                },
+                () => {
+                    setTimeout(() => {
+
+                        itemDetails = new FormData();
+                        itemDetails.set("invoice_id", order_no);
+
+                        for(var key in item) 
+                            itemDetails.set(key, item[key]);
+                    
+                        axios({
+                            method: 'post',
+                            url: 'http://localhost:5000/createItems',
+                            data: itemDetails,
+                            config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
+                        })
+                        .then(res => {
+                            // console.log(res.data);
+                                this.setState({success : true, loading : false})
+                                
+                            })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    }, 2000);
+                });
+
+            })
+         
         })
         .catch(function (error) {
             console.log(error);
-        });
-
-        var itemDetails = new FormData();
-        
-        items.map((item) => {
-            
-            itemDetails = new FormData();
-            itemDetails.set("invoice_id", order_no);
-
-            for(var key in item) 
-                itemDetails.set(key, item[key]);
-
-            // console.log(itemDetails)
-
-            // Set Item Details
-            this.setState(
-            {
-                loading: true,
-                success : false
-            },
-            () => {
-                setTimeout(() => {
-                    axios({
-                        method: 'post',
-                        url: 'http://localhost:5000/createItems',
-                        data: itemDetails,
-                        config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
-                    })
-                    .then(res => {
-                        // console.log(res.data);
-                        this.setState({success : true, loading : false})
-
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                }, 1000);
-            });
-            
-        });
-
-
-
+        })
     };
 
     handleChange = (event) => {
