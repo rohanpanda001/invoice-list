@@ -93,7 +93,7 @@ class DrawerClass extends React.Component {
 
     render() {
 
-        const { classes,open, setInvoice, invoiceList,showInvoices } = this.props;
+        const { classes,open, setInvoice, invoiceList,showInvoices, currInvoice } = this.props;
 
         console.log('noww')
 
@@ -113,7 +113,7 @@ class DrawerClass extends React.Component {
                         className={classes.search}
                     />
                     <List component="nav">
-                        {invoiceList.map((invoice,index) => <InvoiceItem invoice={invoice} setInvoice={setInvoice} id={index}/>)}
+                        {invoiceList.map((invoice,index) => <InvoiceItem currInvoice={currInvoice} invoice={invoice} setInvoice={setInvoice} id={index}/>)}
                     </List>
                 </Drawer>
         );

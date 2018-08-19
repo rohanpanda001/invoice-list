@@ -205,7 +205,7 @@ class Content extends React.Component {
       <div className={classes.root}>
         <div className={classes.appFrame}>
           {invoiceList.length > 0 ? 
-            <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice} showInvoices={this.showInvoices}/>
+            <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice} showInvoices={this.showInvoices} currInvoice={currInvoice}/>
           :""}
           <main
             className={classNames(classes.content, classes[`content-left`], {

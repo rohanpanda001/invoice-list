@@ -36,16 +36,17 @@ const styles = {
         width : 30,
         height : 30
     },
-    bg : {
-        backgroundColor : '#2e3742'
-    }
+    current : {
+        backgroundColor : '#7cba2f'
+    },
 };
 
 function Item(props) {
-  const { classes, invoice, id, setInvoice } = props;
+  const { classes, invoice, id, setInvoice,currInvoice } = props;
+
   return (
     <div>
-    <ListItem button onClick={() => setInvoice(id)}>
+    <ListItem button onClick={() => setInvoice(id)} className={currInvoice === id ? classes.current : ""}>
         <Grid container spacing={24}>
             <Grid item xs={8}>
                 <div className={classNames('row',classes.left)}>
