@@ -156,7 +156,9 @@ class Content extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice}/>
+          {invoiceList.length > 0 ? 
+            <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice}/>
+          :""}
           <main
             className={classNames(classes.content, classes[`content-left`], {
               [classes.contentShift]: open,

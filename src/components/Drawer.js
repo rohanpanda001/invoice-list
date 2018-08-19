@@ -6,6 +6,7 @@ import List from '@material-ui/core/List';
 import InvoiceItem from './InvoiceItem';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
+import axios from 'axios';
 
 const drawerWidth = 350;
 const Search = Input.Search;
@@ -39,33 +40,87 @@ const styles = {
   }
 };
 
-function Row(props) {
+class DrawerClass extends React.Component {
 
-    const { classes,open, invoiceList, setInvoice } = props;
-    return (
-            <Drawer
-                variant="persistent"
-                anchor='left'
-                open={open}
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
-            >
-                <Search
-                    placeholder="Search Invoice"
-                    onSearch={value => console.log(value)}
-                    enterButton
-                    className={classes.search}
-                />
-                <List component="nav">
-                    {invoiceList.map((invoice,index) => <InvoiceItem invoice={invoice} setInvoice={setInvoice} id={index}/>)}
-                </List>
-            </Drawer>
-    );
+    state = {
+        list : []
+    }
+
+    componentDidMount() {
+
+        this.setState({list : this.props.invoiceList})
+      }
+
+    search = (value) => {
+
+        var data = new FormData();
+        data.set("invoice_id", value);
+
+        axios({
+            method: 'post',
+            url: 'http://localhost:5000/filterInvoice',
+            data : data,
+            config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+        })
+        .then(res => {
+            console.log(res.data)
+            var list = [], obj;
+            res.data.map((invoice) => {
+                obj = {};
+                obj['id']=invoice[0];
+                obj['invoice_id']=invoice[1];
+                obj['name']=invoice[2];
+                obj['email']=invoice[3];
+                obj['phone']=invoice[4];
+                obj['address']=invoice[5];
+                obj['pincode']=invoice[6];
+                obj['subtotal']=invoice[7];
+                obj['tax']=invoice[8];
+                obj['discount']=invoice[9];
+                obj['tax_percent']=invoice[10];
+                obj['discount_percent']=invoice[11];
+                obj['created_at']=invoice[12];
+                obj['total']=invoice[13];
+
+                list.push(obj)
+            })
+            this.setState({list})
+        })
+        .catch(function (error) {
+            console.log(error); 
+        });
+    }
+
+    render() {
+
+        const { classes,open, setInvoice } = this.props;
+        const {list} = this.state;
+
+        return (
+                <Drawer
+                    variant="persistent"
+                    anchor='left'
+                    open={open}
+                    classes={{
+                        paper: classes.drawerPaper,
+                    }}
+                >
+                    <Search
+                        placeholder="Search Invoice"
+                        onSearch={this.search}
+                        enterButton
+                        className={classes.search}
+                    />
+                    <List component="nav">
+                        {list.map((invoice,index) => <InvoiceItem invoice={invoice} setInvoice={setInvoice} id={index}/>)}
+                    </List>
+                </Drawer>
+        );
+    }
 }
 
-Row.propTypes = {
+DrawerClass.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Row);
+export default withStyles(styles)(DrawerClass);
