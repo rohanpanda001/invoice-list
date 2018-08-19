@@ -7,6 +7,7 @@ import Invoice from './components/Invoice';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import CreateInvoice from './components/CreateInvoice';
+import axios from 'axios';
 
 const drawerWidth = 350;
 
@@ -66,14 +67,96 @@ const styles = theme => ({
 
 class Content extends React.Component {
 
+  state = {
+    invoiceList : [],
+    currInvoice : 0,
+    items : []
+  }
+
+  componentDidMount() {
+
+    axios({
+      method: 'post',
+      url: 'http://localhost:5000/showAll',
+      // data : "",
+      config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+    })
+    .then(res => {
+        var data = res.data, obj;
+        var list = [];
+        data.map((invoice) => {
+          obj = {};
+          obj['id']=invoice[0];
+          obj['invoice_id']=invoice[1];
+          obj['name']=invoice[2];
+          obj['email']=invoice[3];
+          obj['phone']=invoice[4];
+          obj['address']=invoice[5];
+          obj['pincode']=invoice[6];
+          obj['subtotal']=invoice[7];
+          obj['tax']=invoice[8];
+          obj['discount']=invoice[9];
+          obj['tax_percent']=invoice[10];
+          obj['discount_percent']=invoice[11];
+          obj['created_at']=invoice[12];
+          obj['total']=invoice[13];
+
+          list.push(obj)
+        })
+
+        var data = new FormData();
+        data.set("invoice_id", list[0].invoice_id);
+
+        axios({
+            method: 'post',
+            url: 'http://localhost:5000/getItems',
+            data : data,
+            config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+        })
+        .then(res => {
+            this.setState({items: res.data, invoiceList : list})
+        })
+        .catch(function (error) {
+            console.log(error); 
+        });
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+  }
+
+  setInvoice = (x) => {
+
+    var invoice = this.state.invoiceList[x];
+
+    var data = new FormData();
+    data.set("invoice_id", invoice.invoice_id);
+
+    axios({
+        method: 'post',
+        url: 'http://localhost:5000/getItems',
+        data : data,
+        config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+    })
+    .then(res => {
+        this.setState({items: res.data})
+    })
+    .catch(function (error) {
+        console.log(error); 
+    });
+
+    this.setState({currInvoice : x})
+  }
+
 
   render() {
     const { classes, theme, open } = this.props;
-    
+    const {invoiceList, currInvoice,items} =this.state;
+
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          <Drawer open={open} />
+          <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice}/>
           <main
             className={classNames(classes.content, classes[`content-left`], {
               [classes.contentShift]: open,
@@ -81,7 +164,10 @@ class Content extends React.Component {
             })}
           >
             <CreateInvoice />
-            <Invoice />
+
+            {invoiceList.length > 0 ? 
+              <Invoice invoice={invoiceList[currInvoice]} items={items}/>
+            :""}
             
           </main>
         </div>

@@ -42,28 +42,28 @@ const styles = {
 };
 
 function Item(props) {
-  const { classes } = props;
+  const { classes, invoice, id, setInvoice } = props;
   return (
     <div>
-    <ListItem button>
+    <ListItem button onClick={() => setInvoice(id)}>
         <Grid container spacing={24}>
             <Grid item xs={8}>
                 <div className={classNames('row',classes.left)}>
-                    <Typography variant='title'>Invoice # - 123</Typography>
+                    <Typography variant='body1'>Invoice # {invoice.invoice_id}</Typography>
                 </div>
                 <div className={classNames('row',classes.left)}>
                     <Typography >Items - 05</Typography>
                 </div>
                 <div className={classNames('row',classes.left)}>
-                    <Typography color='primary'>Rohan Panda</Typography>
+                    <Typography color='primary'>{invoice.name ? invoice.name : "--"}</Typography>
                 </div>
             </Grid>
             <Grid item xs={4}>
             <div className={classNames('row',classes.right)}>
-                    <Typography variant='subheading' color='textSecondary'>Time</Typography>
+                    <Typography variant='caption' color='textSecondary'>{invoice.created_at}</Typography>
                 </div>
                 <div className={classNames('row',classes.right,classes.top)}>
-                    <img src={ruppee} className={classes.img}/><Typography variant='title'>3982</Typography>
+                    <img src={ruppee} className={classes.img}/><Typography variant='title'>{invoice.total}</Typography>
                 </div>
             </Grid>
         </Grid>

@@ -48,7 +48,11 @@ const styles = theme => ({
     },
     footer : {
         margin : 20
-    }
+    },
+    tick : {
+        height : 50,
+        width : 50,
+    },
 });
 
 class SimpleDialog extends React.Component {
@@ -63,6 +67,7 @@ class SimpleDialog extends React.Component {
         total : 0.00,
         status : 'customer',
         number : 1,
+        success : false
     }
 
     componentDidMount() {
@@ -79,7 +84,7 @@ class SimpleDialog extends React.Component {
 
     onAbort = () => {
         this.props.handleClose();
-        this.setState({ status : 'customer', number : 1 });
+        this.setState({ status : 'customer', number : 1, items : [{}], subtotal: 0, total : 0, tax : 0, discount : 0});
     };
 
     handleProceed = () => {
@@ -90,21 +95,37 @@ class SimpleDialog extends React.Component {
         this.setState({ status: 'customer' });
     };
 
+    timeNow() {
+        var d = new Date();
+            // h = (d.getHours()<10?'0':'') + d.getHours(),
+            // m = (d.getMinutes()<10?'0':'') + d.getMinutes(),
+            // time = d.toLocaleTimeString(),
+            // date = d.getDate(),
+            // month = d.getMonth(),
+            // year = d.getFullYear()
+
+        return d.toLocaleDateString() + " " + d.toLocaleTimeString() ;
+    }
+
     handleSave = () => {
-        const {customer, product, items, order_no} = this.state;
+        const {customer, product, items, order_no, tax, discount, subtotal, total} = this.state;
         // console.log(customer)
 
         var invoiceDetails = new FormData();
 
-        invoiceDetails.set("invoice_no", order_no);
+        invoiceDetails.set("invoice_id", order_no);
+        invoiceDetails.set("tax_percent", product.tax ? product.tax : 0);
+        invoiceDetails.set("discount_percent", product.discount ? product.discount : 0);
+        invoiceDetails.set("tax", tax);
+        invoiceDetails.set("discount", discount);
+        invoiceDetails.set("subtotal", subtotal);
+        invoiceDetails.set("total", total);
+        invoiceDetails.set("created_at", this.timeNow());
+
 
         for(var key in customer) 
         {
             invoiceDetails.set(key, customer[key]);
-        }
-        for(var key in product) 
-        {
-            invoiceDetails.set(key, product[key]);
         }
 
         // Set Invoice Details
@@ -112,7 +133,7 @@ class SimpleDialog extends React.Component {
             method: 'post',
             url: 'http://localhost:5000/createInvoice',
             data: invoiceDetails,
-            config: { headers: {'Content-Type': 'multipart/form-data' }}
+            config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
         })
         .then(function (res) {
             console.log(res.data);
@@ -122,32 +143,34 @@ class SimpleDialog extends React.Component {
         });
 
         var itemDetails = new FormData();
-        itemDetails.set("invoice_no", order_no);
+        
         items.map((item) => {
+            
+            itemDetails = new FormData();
+            itemDetails.set("invoice_id", order_no);
+
             for(var key in item) 
-            {
                 itemDetails.set(key, item[key]);
-            }
+
+            // console.log(itemDetails)
+
+            // Set Item Details
+            axios({
+                method: 'post',
+                url: 'http://localhost:5000/createItems',
+                data: itemDetails,
+                config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+            })
+            .then(function (res) {
+                console.log(res.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         });
 
-        // Set Item Details
-        axios({
-            method: 'post',
-            url: 'http://localhost:5000/createItems',
-            data: itemDetails,
-            config: { headers: {'Content-Type': 'multipart/form-data' }}
-        })
-        .then(function (res) {
-            console.log(res.data);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
 
-        var hash = createHash(16);
-        this.setState({order_no : hash})
-
-        this.props.handleClose();
+        this.setState({success : true})
 
     };
 
@@ -209,11 +232,14 @@ class SimpleDialog extends React.Component {
 
             // if (items[id] === undefined)
             //     items[id]={}
-            items[id][name]=val;
+            if (val === "" && name === "price")
+                items[id][name]=0.00;
+            else
+                items[id][name]=val;
 
         }
         
-        items.map((item) => new_subtotal += parseInt(item['price']));
+        items.map((item) => new_subtotal += parseInt(item['price']) * (item['quantity'] ? parseInt(item['quantity']) : 1));
         this.setState({ product, items, subtotal : new_subtotal});
 
         this.setState({total : new_subtotal + new_tax - new_discount})
@@ -221,11 +247,18 @@ class SimpleDialog extends React.Component {
 
     }
 
+    handleSuccess = () => {
+        var hash = createHash(16);
+        this.setState({order_no : hash, success: false})
+        this.onAbort()
+        this.props.handleClose()
+    }
+
   
     render() {
       const { classes , open, handleClose} = this.props;
 
-      const { customer, product, items, number, status, order_no} = this.state;
+      const { customer, product, items, number, status, order_no, success} = this.state;
 
       const { TextArea } = Input;
 
@@ -237,213 +270,237 @@ class SimpleDialog extends React.Component {
           onClose={handleClose}
           aria-labelledby="form-dialog-title"
         >
-          {/* <DialogTitle id="form-dialog-title">Create Invoice</DialogTitle>    */}
-          <DialogContent>
-          <Typography variant='display1'>Create Invoice</Typography>
-          <Typography variant='heading'>Order No. {order_no}</Typography>
+        { success ?
+            <div>
+                <DialogTitle id="alert-dialog-slide-title">
+                Invoice Created Successfully
+                </DialogTitle>
+                <DialogContent className={classes.center}>
+                    <img src="https://png.icons8.com/flat_round/2x/checkmark.png" classes={classes.tick}/>
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={this.handleSuccess} color="primary">
+                    Done
+                </Button>
+                </DialogActions>
+            </div>
 
-            {status === "customer" ?
+            :
+            
+            <div>
+            <DialogContent>
+            <Typography variant='display1'>Create Invoice</Typography>
+            <Typography variant='heading'>Order No. {order_no}</Typography>
 
-                <Grid container spacing={24}>
-                    <Grid item xs={8} className={classes.left}>
-                        <Typography variant='title'>Customer Details</Typography>
+                {status === "customer" ?
+
+                    <Grid container spacing={24}>
+                        <Grid item xs={8} className={classes.left}>
+                            <Typography variant='title'>Customer Details</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <div className={classes.right}>
+                                <Button variant="outlined" color="primary" onClick={this.handleProceed}>
+                                    Skip
+                                    <img src={skip} className={classes.printImg}/>
+                                </Button>
+                            </div>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+
+                        
+
+                        <Grid item xs= {6}>
+                            <Typography>Name</Typography>
+                            <Input placeholder="Full Name" onChange={this.handleChange} name='name' value={customer['name']}/>
+                        </Grid>
+                        <Grid item xs= {6}>
+                            <Typography>Phone</Typography>
+                            <Input addonBefore="+91" placeholder="Phone Number" onChange={this.handleChange} name='phone' value={customer['phone']}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography>Address</Typography>
+                            <TextArea placeholder="Complete Address" autosize={{ minRows: 6, maxRows: 10 }} onChange={this.handleChange} name='address' value={customer['address']}/>
+                        </Grid>
+                        <Grid item xs= {6}>
+                            <Typography>Email</Typography>
+                            <Input placeholder="Email Address" onChange={this.handleChange} name='email' value={customer['email']}/>
+                            <div style={{height : 20}}></div>
+                            <Typography>Pincode</Typography>
+                            <Input placeholder="Pincode" onChange={this.handleChange} name='pincode' value={customer['pincode']}/>
+                        </Grid>
+
                     </Grid>
-                    <Grid item xs={4}>
+
+                    :
+                    <div>
+                    <Grid container spacing={24}>
+                        <Grid item xs={4} className={classes.left}>
+                            <Typography variant='title'>Product Details</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <div className={classNames('row',classes.right)}>
+                                <Typography variant='caption'>Customer Details</Typography>
+                            </div>
+                            <div className={classNames('row',classes.right)}>
+                                <Typography variant='body2'>{ customer['name'] ? customer['name'] : "--"}</Typography>
+                            </div>
+                            <div className={classNames('row',classes.right)}>
+                                <Typography variant='body1'>{customer['email'] ? customer['email'] : "--"}</Typography>
+                            </div>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <div className={classes.right}>
+                                <IconButton variant="outlined" color="primary" onClick={this.onEdit}>
+                                    <img src={edit} className={classes.printImg}/>
+                                </IconButton>
+                            </div>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+
+                        {/* Heading */}
+                        <Grid item xs={6} className={classes.left}>
+                            <Typography variant='subheading'>Item</Typography>
+                        </Grid>
+                        <Grid item xs={3} className={classes.center}>
+                            <Typography variant='subheading'>Quantity</Typography>
+                        </Grid>
+                        <Grid item xs={3} className={classes.center}>
+                            <Typography variant='subheading'>Price</Typography>
+                            <img src={ruppee} width='30' height='30'/>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                    </Grid>
+
+                    {/* Items */}
+
+                        {[...Array(number)].map((x, i) =>
+                            // <ObjectRow key={i} />
+                            <Grid container spacing={24} key={i}>
+                                <Grid item xs={6} className={classes.left}>
+                                    <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i} value={items[i].name}/>
+                                </Grid>
+                                <Grid item xs={3} className={classes.center}>
+                                    <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i} value={items[i].quantity}/>
+                                </Grid>
+                                <Grid item xs={3} className={classes.center}>
+                                    <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i} value={items[i].price}/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Divider />
+                                </Grid>
+                            </Grid>
+                        )}
+
                         <div className={classes.right}>
-                            <Button variant="outlined" color="primary" onClick={this.handleProceed}>
-                                Skip
-                                <img src={skip} className={classes.printImg}/>
+                            <Button variant="outlined" color="primary" className={classes.add} onClick={this.increaseItem}>
+                                Add Item
                             </Button>
                         </div>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider />
-                    </Grid>
 
-                    
-
-                    <Grid item xs= {6}>
-                        <Typography>Name</Typography>
-                        <Input placeholder="Full Name" onChange={this.handleChange} name='name' value={customer['name']}/>
-                    </Grid>
-                    <Grid item xs= {6}>
-                        <Typography>Phone</Typography>
-                        <Input addonBefore="+91" placeholder="Phone Number" onChange={this.handleChange} name='phone' value={customer['phone']}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography>Address</Typography>
-                        <TextArea placeholder="Complete Address" autosize={{ minRows: 6, maxRows: 10 }} onChange={this.handleChange} name='address' value={customer['address']}/>
-                    </Grid>
-                    <Grid item xs= {6}>
-                        <Typography>Email</Typography>
-                        <Input placeholder="Email Address" onChange={this.handleChange} name='email' value={customer['email']}/>
-                        <div style={{height : 20}}></div>
-                        <Typography>Pincode</Typography>
-                        <Input placeholder="Pincode" onChange={this.handleChange} name='pincode' value={customer['pincode']}/>
-                    </Grid>
-
-                </Grid>
-
-                :
-                <div>
-                <Grid container spacing={24}>
-                    <Grid item xs={4} className={classes.left}>
-                        <Typography variant='title'>Product Details</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className={classNames('row',classes.right)}>
-                            <Typography variant='caption'>Customer Details</Typography>
-                        </div>
-                        <div className={classNames('row',classes.right)}>
-                            <Typography variant='body2'>{ customer['name'] ? customer['name'] : "--"}</Typography>
-                        </div>
-                        <div className={classNames('row',classes.right)}>
-                            <Typography variant='body1'>{customer['email'] ? customer['email'] : "--"}</Typography>
-                        </div>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <div className={classes.right}>
-                            <IconButton variant="outlined" color="primary" onClick={this.onEdit}>
-                                <img src={edit} className={classes.printImg}/>
-                            </IconButton>
-                        </div>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider />
-                    </Grid>
-
-                    {/* Heading */}
-                    <Grid item xs={6} className={classes.left}>
-                        <Typography variant='subheading'>Item</Typography>
-                    </Grid>
-                    <Grid item xs={3} className={classes.center}>
-                        <Typography variant='subheading'>Quantity</Typography>
-                    </Grid>
-                    <Grid item xs={3} className={classes.center}>
-                        <Typography variant='subheading'>Price</Typography>
-                        <img src={ruppee} width='30' height='30'/>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Divider />
-                    </Grid>
-                </Grid>
-
-                {/* Items */}
-
-                    {[...Array(number)].map((x, i) =>
-                        // <ObjectRow key={i} />
-                        <Grid container spacing={24} key={i}>
-                            <Grid item xs={6} className={classes.left}>
-                                <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i} value={items[i].name}/>
+                        <Grid container spacing={24}>
+                            <Grid item xs={12}>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={3} className={classes.left}>
+                                <Input placeholder="Tax" addonAfter="%" name='tax' onChange={this.itemChange} value={product.tax}/>
                             </Grid>
                             <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i} value={items[i].quantity}/>
+                                <Input placeholder="Discount" addonAfter="%" name='discount' onChange={this.itemChange} value={product.discount}/>
                             </Grid>
-                            <Grid item xs={3} className={classes.center}>
-                                <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i} value={items[i].price}/>
+                            <Grid item xs={4} className={classes.right}>
+                                <Typography variant='body2' color='textSecondary'>Sub Total</Typography>
+                            </Grid>
+                            <Grid item xs={2} className={classes.center}>
+                                <img src={ruppee} width='20' height='20'/>
+                                <Typography variant='body1'>{this.state.subtotal}</Typography>
                             </Grid>
                             <Grid item xs={12}>
                                 <Divider />
                             </Grid>
                         </Grid>
-                    )}
-
-                    <div className={classes.right}>
-                        <Button variant="outlined" color="primary" className={classes.add} onClick={this.increaseItem}>
-                            Add Item
-                        </Button>
+                        
                     </div>
 
-                    <Grid container spacing={24}>
-                        <Grid item xs={12}>
-                            <Divider />
-                        </Grid>
-                        <Grid item xs={3} className={classes.left}>
-                            <Input placeholder="Tax" addonAfter="%" name='tax' onChange={this.itemChange} value={product.tax}/>
-                        </Grid>
-                        <Grid item xs={3} className={classes.center}>
-                            <Input placeholder="Discount" addonAfter="%" name='discount' onChange={this.itemChange} value={product.discount}/>
-                        </Grid>
-                        <Grid item xs={4} className={classes.right}>
-                            <Typography variant='body2' color='textSecondary'>Sub Total</Typography>
-                        </Grid>
-                        <Grid item xs={2} className={classes.center}>
-                            <img src={ruppee} width='20' height='20'/>
-                            <Typography variant='body1'>{this.state.subtotal}</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Divider />
-                        </Grid>
-                    </Grid>
-                    
-                </div>
+                }
+            </DialogContent>
 
-            }
-          </DialogContent>
+                {status === "customer" ?
+                    <DialogActions className={classes.footer}>
+                        <Button onClick={this.onAbort} color="primary">
+                        Cancel
+                        </Button>
+                        <Button onClick={this.handleProceed} color="primary" variant='raised'>
+                        Proceed
+                        </Button>
+                    </DialogActions>
 
-            {status === "customer" ?
-                <DialogActions className={classes.footer}>
-                    <Button onClick={this.onAbort} color="primary">
-                    Cancel
-                    </Button>
-                    <Button onClick={this.handleProceed} color="primary" variant='raised'>
-                    Proceed
-                    </Button>
-                </DialogActions>
+                    :
 
-                :
-
-                <div className={classes.footer}>
-                    {/* <div className={classes.left}>
+                    <div className={classes.footer}>
+                        {/* <div className={classes.left}>
+                            <Button onClick={onAbort} color="primary">
+                            Cancel
+                            </Button>
+                        </div>
                         <Button onClick={onAbort} color="primary">
                         Cancel
                         </Button>
+                        <Button onClick={handleSave} color="primary" variant='raised'>
+                        Save
+                        </Button> */}
+                        
+                        <Grid container spacing={24}>
+                            <Grid item xs={3}>
+                                <div className={classNames('row',classes.left)}>
+                                    <Typography color='textSecondary'>Tax</Typography>
+                                </div>
+                                <div className={classNames('row',classes.left)}>
+                                    <img src={ruppee} width='20' height='20'/>
+                                    <Typography variant='body2'>{this.state.tax}</Typography>
+                                </div>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <div className={classNames('row',classes.left)}>
+                                    <Typography color='textSecondary'>Discount</Typography>
+                                </div>
+                                <div className={classNames('row',classes.left)}>
+                                    <img src={ruppee} width='20' height='20'/>
+                                    <Typography variant='body2'>{this.state.discount}</Typography>
+                                </div>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <div className={classNames('row',classes.right)}>
+                                    <Typography color='textSecondary'>Grand Total</Typography>
+                                </div>
+                                <div className={classNames('row',classes.right)}>
+                                    <img src={ruppee} width='20' height='20'/>
+                                    <Typography variant='body2'>{this.state.total}</Typography>
+                                </div>
+                            </Grid>
+                            <Grid item xs={2} className={classes.center}>
+                                <Button onClick={this.onAbort} color="primary">
+                                    Cancel
+                                </Button>
+                            </Grid>
+                            <Grid item xs={2} className={classes.center}>
+                                <Button onClick={this.handleSave} color="primary" variant='raised'>
+                                    Save
+                                </Button>
+                            </Grid>
+                        </Grid>
+                        
                     </div>
-                    <Button onClick={onAbort} color="primary">
-                    Cancel
-                    </Button>
-                    <Button onClick={handleSave} color="primary" variant='raised'>
-                    Save
-                    </Button> */}
-                    
-                    <Grid container spacing={24}>
-                        <Grid item xs={3}>
-                            <div className={classNames('row',classes.left)}>
-                                <Typography color='textSecondary'>Tax</Typography>
-                            </div>
-                            <div className={classNames('row',classes.left)}>
-                                <img src={ruppee} width='20' height='20'/>
-                                <Typography variant='body2'>{this.state.tax}</Typography>
-                            </div>
-                        </Grid>
-                        <Grid item xs={3}>
-                            <div className={classNames('row',classes.left)}>
-                                <Typography color='textSecondary'>Discount</Typography>
-                            </div>
-                            <div className={classNames('row',classes.left)}>
-                                <img src={ruppee} width='20' height='20'/>
-                                <Typography variant='body2'>{this.state.discount}</Typography>
-                            </div>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <div className={classNames('row',classes.right)}>
-                                <Typography color='textSecondary'>Grand Total</Typography>
-                            </div>
-                            <div className={classNames('row',classes.right)}>
-                                <img src={ruppee} width='20' height='20'/>
-                                <Typography variant='body2'>{this.state.total}</Typography>
-                            </div>
-                        </Grid>
-                        <Grid item xs={2} className={classes.center}>
-                            <Button onClick={this.handleSave} color="primary" variant='raised'>
-                                Save
-                            </Button>
-                        </Grid>
-                    </Grid>
-                    
-                </div>
-            }
+                }
+            </div>
+        }
         </Dialog>
       );
     }

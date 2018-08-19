@@ -30,18 +30,20 @@ const styles = {
 
 function Row(props) {
 
-    const { classes } = props;
+    const { classes, item } = props;
+
+    console.log(item)
     return (
         <div className={classes.root}>
             <Grid container spacing={24} className={classes.vertical}>
                 <Grid item xs={6} className={classes.left}>
-                    <Typography variant='body1'>Prawn and Chicken Sui Mui</Typography>
+                    <Typography variant='body1'>{item[2]}</Typography>
                 </Grid>
                 <Grid item xs={3} className={classes.center}>
-                    <Typography variant='body1'>2</Typography>
+                    <Typography variant='body1'>{item[3]}</Typography>
                 </Grid>
                 <Grid item xs={3} className={classes.center}>
-                    <Typography variant='body1'>430</Typography>
+                    <Typography variant='body1'>{item[4]}</Typography>
                 </Grid>
             </Grid>
             <Divider />

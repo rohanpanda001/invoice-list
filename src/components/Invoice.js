@@ -11,6 +11,7 @@ import { Grid, Divider } from '@material-ui/core';
 import Row from './itemRow';
 import ruppee from '../assets/ruppee.png';
 import print from '../assets/print.png';
+import axios from 'axios';
 
 const styles = {
   card: {
@@ -61,111 +62,113 @@ const styles = {
   }
 };
 
-function SimpleCard(props) {
-  const { classes } = props;
+class Invoice extends React.Component {
 
-  return (
-    <div>
-      <Card className={classes.card}>
-        <CardContent>
-            <div className={classes.title}>
-                <Grid container spacing={24}>
-                    <Grid item xs={7}>
-                        <Typography variant='headline'>INVOICE</Typography>
-                        <Typography variant='subheading'>INVOICE</Typography>
-                        <Typography variant='caption'>INVOICE</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                            <div className={classNames('row',classes.right)}>
-                                <Typography variant='caption'>Customer Details</Typography>
+    render() {
+        const { classes, invoice,items } = this.props;
+
+        return (
+            invoice !== undefined ? 
+            <div>
+            <Card className={classes.card}>
+                <CardContent>
+                    <div className={classes.title}>
+                        <Grid container spacing={24}>
+                            <Grid item xs={7}>
+                                <Typography variant='headline'>INVOICE</Typography>
+                                <Typography variant='subheading'># {invoice.invoice_id ? invoice.invoice_id : "--"}</Typography>
+                                <Typography variant='caption'>{invoice.created_at}</Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                    <div className={classNames('row',classes.right)}>
+                                        <Typography variant='caption'>Customer Details</Typography>
+                                    </div>
+                                    <div className={classNames('row',classes.right)}>
+                                        <Typography variant='body2'>{invoice.name ? invoice.name : "--"}</Typography>
+                                    </div>
+                                    <div className={classNames('row',classes.right)}>
+                                        <Typography variant='body1'>{invoice.email ? invoice.email : "--"}</Typography>
+                                    </div>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <div className={classes.center}>
+                                <Button variant="outlined" color="primary" className={classes.button} onClick={() => window.print()}>
+                                    <img src={print} className={classes.printImg}/>Print
+                                </Button>
+                                </div>
+
+                            </Grid>
+                        </Grid>
+                    </div>
+
+                    <div className={classes.header}>  
+                        <Divider />
+                        <Grid container spacing={24} className={classes.vertical}>
+                            <Grid item xs={6} className={classes.left}>
+                                <Typography variant='title'>Item</Typography>
+                            </Grid>
+                            <Grid item xs={3} className={classes.center}>
+                                <Typography variant='title'>Quantity</Typography>
+                            </Grid>
+                            <Grid item xs={3} className={classes.center}>
+                                <Typography variant='title'>Price</Typography>
+                                <img src={ruppee} width='30' height='30'/>
+                            </Grid>
+                        </Grid>
+                        <Divider />
+                    </div>
+
+                    <div className={classes.body}>  
+                        {items !== undefined ? items.map((item) => <Row item={item}/>): ""}
+                    </div>
+
+                    <Grid container spacing={24} className={classes.vertical}>
+                        <Grid item xs={6} className={classes.left}>
+                        </Grid>
+                        <Grid item xs={3} >
+                            <div className={classNames('row',classes.center)}>
+                                <Typography variant='body1'>Sub Total</Typography>
                             </div>
-                            <div className={classNames('row',classes.right)}>
-                                <Typography variant='body2'>ROHAN PANDA</Typography>
+                            <div className={classNames('row',classes.center)}>
+                                <Typography variant='body1'>Tax ({invoice.tax_percent}%)</Typography>
                             </div>
-                            <div className={classNames('row',classes.right)}>
-                                <Typography variant='body1'>rohan.panda1@gmail.com</Typography>
+                            <div className={classNames('row',classes.center)}>
+                                <Typography variant='body1'>Discount ({invoice.discount_percent}%)</Typography>
                             </div>
 
+                            <div className={classNames('row',classes.center,classes.top)}>
+                                <Typography variant='title'>Grand Total</Typography>
+                            </div>
+                            
+                            
+                        </Grid>
+                        <Grid item xs={3}>
+                            <div className={classNames('row',classes.center)}>
+                                <img src={ruppee} className={classes.img}/><Typography variant='body1'>{invoice.subtotal}</Typography>
+                            </div>
+                            <div className={classNames('row',classes.center)}>
+                                <img src={ruppee} className={classes.img}/><Typography variant='body1'>{invoice.tax}</Typography>
+                            </div>
+                            <div className={classNames('row',classes.center)}>
+                                <img src={ruppee} className={classes.img}/><Typography variant='body1'>{invoice.discount}</Typography>
+                            </div>
+                            <div className={classNames('row',classes.center,classes.top)}>
+                                <img src={ruppee} className={classes.img}/><Typography variant='title'>{invoice.total}</Typography>
+                            </div>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={2}>
-                        <div className={classes.center}>
-                        <Button variant="outlined" color="primary" className={classes.button} onClick={() => window.print()}>
-                            <img src={print} className={classes.printImg}/>Print
-                        </Button>
-                        </div>
 
-                    </Grid>
-                </Grid>
+                </CardContent>
+            </Card>
             </div>
-
-            <div className={classes.header}>  
-                <Divider />
-                <Grid container spacing={24} className={classes.vertical}>
-                    <Grid item xs={6} className={classes.left}>
-                        <Typography variant='title'>Item</Typography>
-                    </Grid>
-                    <Grid item xs={3} className={classes.center}>
-                        <Typography variant='title'>Quantity</Typography>
-                    </Grid>
-                    <Grid item xs={3} className={classes.center}>
-                        <Typography variant='title'>Price</Typography>
-                        <img src={ruppee} width='30' height='30'/>
-                    </Grid>
-                </Grid>
-                <Divider />
-            </div>
-
-            <div className={classes.body}>  
-                <Row />
-                <Row />
-                <Row />
-                <Row />
-            </div>
-
-            <Grid container spacing={24} className={classes.vertical}>
-                <Grid item xs={6} className={classes.left}>
-                </Grid>
-                <Grid item xs={3} >
-                    <div className={classNames('row',classes.center)}>
-                        <Typography variant='body1'>Sub Total</Typography>
-                    </div>
-                    <div className={classNames('row',classes.center)}>
-                        <Typography variant='body1'>Tax (12.36%)</Typography>
-                    </div>
-                    <div className={classNames('row',classes.center)}>
-                        <Typography variant='body1'>Discount (10%)</Typography>
-                    </div>
-
-                    <div className={classNames('row',classes.center,classes.top)}>
-                        <Typography variant='title'>Grand Total</Typography>
-                    </div>
-                    
-                    
-                </Grid>
-                <Grid item xs={3}>
-                    <div className={classNames('row',classes.center)}>
-                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>35233</Typography>
-                    </div>
-                    <div className={classNames('row',classes.center)}>
-                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>423423</Typography>
-                    </div>
-                    <div className={classNames('row',classes.center)}>
-                        <img src={ruppee} className={classes.img}/><Typography variant='body1'>423423</Typography>
-                    </div>
-                    <div className={classNames('row',classes.center,classes.top)}>
-                        <img src={ruppee} className={classes.img}/><Typography variant='title'>3272387</Typography>
-                    </div>
-                </Grid>
-            </Grid>
-
-        </CardContent>
-      </Card>
-    </div>
-  );
+            :
+            <div></div>
+        );
+    }
 }
 
-SimpleCard.propTypes = {
+Invoice.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SimpleCard);
+export default withStyles(styles)(Invoice);

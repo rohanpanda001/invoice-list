@@ -41,7 +41,7 @@ const styles = {
 
 function Row(props) {
 
-    const { classes,open } = props;
+    const { classes,open, invoiceList, setInvoice } = props;
     return (
             <Drawer
                 variant="persistent"
@@ -58,10 +58,7 @@ function Row(props) {
                     className={classes.search}
                 />
                 <List component="nav">
-                    <InvoiceItem />
-                    <InvoiceItem />
-                    <InvoiceItem />
-                    <InvoiceItem />
+                    {invoiceList.map((invoice,index) => <InvoiceItem invoice={invoice} setInvoice={setInvoice} id={index}/>)}
                 </List>
             </Drawer>
     );
