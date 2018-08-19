@@ -70,7 +70,8 @@ class Content extends React.Component {
   state = {
     invoiceList : [],
     currInvoice : 0,
-    items : []
+    items : [],
+    reload : false
   }
 
   componentDidMount() {

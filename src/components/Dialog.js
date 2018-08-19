@@ -133,7 +133,7 @@ class SimpleDialog extends React.Component {
             method: 'post',
             url: 'http://localhost:5000/createInvoice',
             data: invoiceDetails,
-            config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+            config: { headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'multipart/form-data', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
         })
         .then(function (res) {
             console.log(res.data);
@@ -252,6 +252,7 @@ class SimpleDialog extends React.Component {
         this.setState({order_no : hash, success: false})
         this.onAbort()
         this.props.handleClose()
+
     }
 
   

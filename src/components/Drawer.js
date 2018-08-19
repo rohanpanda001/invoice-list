@@ -48,6 +48,10 @@ class DrawerClass extends React.Component {
 
     componentDidMount() {
 
+        this.getList()
+    }
+    getList() {
+
         this.setState({list : this.props.invoiceList})
       }
 
@@ -95,6 +99,8 @@ class DrawerClass extends React.Component {
 
         const { classes,open, setInvoice } = this.props;
         const {list} = this.state;
+
+        console.log('noww')
 
         return (
                 <Drawer
