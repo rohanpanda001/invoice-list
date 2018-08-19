@@ -116,9 +116,9 @@ class Content extends React.Component {
 
       })
 
-      this.setInvoice(0)
-
+      
       this.setState({invoiceList : list, currInvoice : 0})
+      this.setInvoice(0)
 
     })
     .catch(function (error) {

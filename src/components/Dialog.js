@@ -17,6 +17,7 @@ import ruppee from '../assets/ruppee.png';
 import axios from 'axios'
 import createHash from 'hash-generator';
 import Cross from '@material-ui/icons/Close';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
     right: {
@@ -158,26 +159,33 @@ class SimpleDialog extends React.Component {
             // console.log(itemDetails)
 
             // Set Item Details
+            this.setState(
+            {
+                loading: true,
+                success : false
+            },
+            () => {
+                setTimeout(() => {
+                    axios({
+                        method: 'post',
+                        url: 'http://localhost:5000/createItems',
+                        data: itemDetails,
+                        config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
+                    })
+                    .then(res => {
+                        // console.log(res.data);
+                        this.setState({success : true, loading : false})
 
-            setTimeout(() => {
-                axios({
-                    method: 'post',
-                    url: 'http://localhost:5000/createItems',
-                    data: itemDetails,
-                    config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
-                })
-                .then(function (res) {
-                    console.log(res.data);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-              }, 1000);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                }, 1000);
+            });
             
         });
 
 
-        this.setState({success : true})
 
     };
 
@@ -305,7 +313,7 @@ class SimpleDialog extends React.Component {
     render() {
       const { classes , open, handleClose} = this.props;
 
-      const { customer, product, items, number, status, order_no, success} = this.state;
+      const { customer, product, items, number, status, order_no, success, loading} = this.state;
 
       const { TextArea } = Input;
 
@@ -316,13 +324,18 @@ class SimpleDialog extends React.Component {
           onClose={handleClose}
           aria-labelledby="form-dialog-title"
         >
-        { success ?
+        { loading ?
+            <DialogContent className={classes.center}>
+                <CircularProgress size={30} className={classes.buttonProgress} />
+            </DialogContent>
+            :
+            success ?
             <div>
                 <DialogTitle id="alert-dialog-slide-title">
                 Invoice Created Successfully
                 </DialogTitle>
                 <DialogContent className={classes.center}>
-                    <img src="https://png.icons8.com/flat_round/2x/checkmark.png" classes={classes.tick}/>
+                    <img src="https://cdn3.iconfinder.com/data/icons/flat-actions-icons-9/792/Tick_Mark_Dark-512.png" height='250' width='200'/>
                 </DialogContent>
                 <DialogActions>
                 <Button onClick={this.handleSuccess} color="primary">
