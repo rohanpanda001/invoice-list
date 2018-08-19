@@ -11,11 +11,12 @@ import { Grid, Typography, Button, Divider, IconButton } from '@material-ui/core
 import skip from '../assets/skip.png'
 import edit from '../assets/edit.png'
 import TextField from '@material-ui/core/TextField';
-import { Input } from 'antd';
+import { Input, InputNumber } from 'antd';
 import 'antd/dist/antd.css';
 import ruppee from '../assets/ruppee.png';
 import axios from 'axios'
 import createHash from 'hash-generator';
+import Cross from '@material-ui/icons/Close';
 
 const styles = theme => ({
     right: {
@@ -67,7 +68,8 @@ class SimpleDialog extends React.Component {
         total : 0.00,
         status : 'customer',
         number : 1,
-        success : false
+        success : false,
+        validation : true
     }
 
     componentDidMount() {
@@ -80,6 +82,7 @@ class SimpleDialog extends React.Component {
         var items = this.state.items;
         items.push({})
         this.setState({ number: this.state.number + 1,  items});
+        this.checkValidation()
     };
 
     onAbort = () => {
@@ -155,18 +158,22 @@ class SimpleDialog extends React.Component {
             // console.log(itemDetails)
 
             // Set Item Details
-            axios({
-                method: 'post',
-                url: 'http://localhost:5000/createItems',
-                data: itemDetails,
-                config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
-            })
-            .then(function (res) {
-                console.log(res.data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+
+            setTimeout(() => {
+                axios({
+                    method: 'post',
+                    url: 'http://localhost:5000/createItems',
+                    data: itemDetails,
+                    config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
+                })
+                .then(function (res) {
+                    console.log(res.data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+              }, 1000);
+            
         });
 
 
@@ -229,22 +236,51 @@ class SimpleDialog extends React.Component {
         else 
         {
             const id = event.target.id;
+            const isInteger = /^[0-9]+$/;
+            if (name !== "name")
+            {
+                if (val === "")
+                    items[id][name]=0.00;
+                else if(isInteger.test(val))
+                    items[id][name]=val;
 
-            // if (items[id] === undefined)
-            //     items[id]={}
-            if (val === "" && name === "price")
-                items[id][name]=0.00;
+            }
             else
                 items[id][name]=val;
 
+
+            this.setState({items})
+
         }
-        
-        items.map((item) => new_subtotal += parseInt(item['price']) * (item['quantity'] ? parseInt(item['quantity']) : 1));
-        this.setState({ product, items, subtotal : new_subtotal});
 
-        this.setState({total : new_subtotal + new_tax - new_discount})
+        // Calculation
+        if (name === "price" || name === "tax" || name === "discount")
+        {
+            items.map((item) => new_subtotal += parseInt(item['price']) * (item['quantity'] ? parseInt(item['quantity']) : 1));
+            this.setState({ product, subtotal : new_subtotal});
 
+            this.setState({total : new_subtotal + new_tax - new_discount})
+        }
 
+        // Validation
+        this.checkValidation()
+
+    }
+
+    checkValidation= () => 
+    {
+        const { items } = this.state;
+        var filledUp = true
+        for(var i = 0 ; i < items.length ; i++){
+            if(items[i].name===undefined || items[i].price===undefined || items[i].quantity===undefined) 
+            {
+                filledUp =false 
+            }
+        }
+        if (filledUp)
+            this.setState({validation : false})
+        else
+            this.setState({validation : true})
     }
 
     handleSuccess = () => {
@@ -257,6 +293,14 @@ class SimpleDialog extends React.Component {
 
     }
 
+    onItemDelete = (index) => {
+        const { items, number } = this.state;
+
+        items.splice(index,1)
+        this.setState({items, number : number-1})
+
+        console.log(items)
+    }
   
     render() {
       const { classes , open, handleClose} = this.props;
@@ -265,7 +309,6 @@ class SimpleDialog extends React.Component {
 
       const { TextArea } = Input;
 
-  
       return (
 
         <Dialog
@@ -321,7 +364,7 @@ class SimpleDialog extends React.Component {
                         </Grid>
                         <Grid item xs= {6}>
                             <Typography>Phone</Typography>
-                            <Input addonBefore="+91" placeholder="Phone Number" onChange={this.handleChange} name='phone' value={customer['phone']}/>
+                            <Input addonBefore="+91" placeholder="Phone Number" type="number" onChange={this.handleChange} name='phone' value={customer['phone']}/>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography>Address</Typography>
@@ -329,10 +372,10 @@ class SimpleDialog extends React.Component {
                         </Grid>
                         <Grid item xs= {6}>
                             <Typography>Email</Typography>
-                            <Input placeholder="Email Address" onChange={this.handleChange} name='email' value={customer['email']}/>
+                            <Input placeholder="Email Address" onChange={this.handleChange} type='email' name='email' value={customer['email']}/>
                             <div style={{height : 20}}></div>
                             <Typography>Pincode</Typography>
-                            <Input placeholder="Pincode" onChange={this.handleChange} name='pincode' value={customer['pincode']}/>
+                            <Input placeholder="Pincode" onChange={this.handleChange} type='number' name='pincode' value={customer['pincode']}/>
                         </Grid>
 
                     </Grid>
@@ -366,13 +409,13 @@ class SimpleDialog extends React.Component {
                         </Grid>
 
                         {/* Heading */}
-                        <Grid item xs={6} className={classes.left}>
+                        <Grid item xs={7} className={classes.left}>
                             <Typography variant='subheading'>Item</Typography>
                         </Grid>
-                        <Grid item xs={3} className={classes.center}>
+                        <Grid item xs={2} className={classes.center}>
                             <Typography variant='subheading'>Quantity</Typography>
                         </Grid>
-                        <Grid item xs={3} className={classes.center}>
+                        <Grid item xs={3} className={classes.left}>
                             <Typography variant='subheading'>Price</Typography>
                             <img src={ruppee} width='30' height='30'/>
                         </Grid>
@@ -387,14 +430,19 @@ class SimpleDialog extends React.Component {
                         {[...Array(number)].map((x, i) =>
                             // <ObjectRow key={i} />
                             <Grid container spacing={24} key={i}>
-                                <Grid item xs={6} className={classes.left}>
+                                <Grid item xs={7} className={classes.left}>
                                     <Input placeholder="Enter Item Name" name='name' onChange={this.itemChange} id={i} value={items[i].name}/>
                                 </Grid>
-                                <Grid item xs={3} className={classes.center}>
-                                    <Input placeholder="0.00" name='quantity' onChange={this.itemChange} id={i} value={items[i].quantity}/>
+                                <Grid item xs={2} className={classes.center}>
+                                    <Input placeholder="0.00" name='quantity' type='number' onChange={this.itemChange} id={i} value={items[i].quantity}/>
                                 </Grid>
-                                <Grid item xs={3} className={classes.center}>
-                                    <Input placeholder="0.00" name='price' onChange={this.itemChange} id={i} value={items[i].price}/>
+                                <Grid item xs={2} className={classes.center}>
+                                    <Input placeholder="0.00" name='price' type='number' onChange={this.itemChange} id={i} value={items[i].price}/>
+                                </Grid>
+                                <Grid item xs={1} className={classes.center}>
+                                    <IconButton onClick={() => this.onItemDelete(i)}>
+                                        <Cross />
+                                    </IconButton>
                                 </Grid>
                                 <Grid item xs={12}>
                                     <Divider />
@@ -494,7 +542,12 @@ class SimpleDialog extends React.Component {
                                 </Button>
                             </Grid>
                             <Grid item xs={2} className={classes.center}>
-                                <Button onClick={this.handleSave} color="primary" variant='raised'>
+                                <Button 
+                                    onClick={this.handleSave} 
+                                    color="primary" 
+                                    variant='raised'
+                                    disabled={this.state.validation}
+                                >
                                     Save
                                 </Button>
                             </Grid>

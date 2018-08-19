@@ -7,6 +7,7 @@ import InvoiceItem from './InvoiceItem';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
 import axios from 'axios';
+import { Typography } from '@material-ui/core';
 
 const drawerWidth = 350;
 const Search = Input.Search;
@@ -24,6 +25,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    margin : 10
   },
   center: {
     display: 'flex',
@@ -37,65 +39,27 @@ const styles = {
   search : {
       margin : 20,
       width : '90%'
+  },
+  showResults : {
   }
 };
 
 class DrawerClass extends React.Component {
 
-    state = {
-        list : []
+    state= {
+        showResults : false,
     }
 
-    componentDidMount() {
+    search = (value) => {
 
-        this.setState({list : this.props.invoiceList})
+        this.setState({showResults: true})
+
+        this.props.showInvoices(value)
     }
-
-    // search = (value) => {
-
-    //     var data = new FormData();
-    //     data.set("invoice_id", value);
-
-    //     axios({
-    //         method: 'post',
-    //         url: 'http://localhost:5000/filterInvoice',
-    //         data : data,
-    //         config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
-    //     })
-    //     .then(res => {
-    //         console.log(res.data)
-    //         var list = [], obj;
-    //         res.data.map((invoice) => {
-    //             obj = {};
-    //             obj['id']=invoice[0];
-    //             obj['invoice_id']=invoice[1];
-    //             obj['name']=invoice[2];
-    //             obj['email']=invoice[3];
-    //             obj['phone']=invoice[4];
-    //             obj['address']=invoice[5];
-    //             obj['pincode']=invoice[6];
-    //             obj['subtotal']=invoice[7];
-    //             obj['tax']=invoice[8];
-    //             obj['discount']=invoice[9];
-    //             obj['tax_percent']=invoice[10];
-    //             obj['discount_percent']=invoice[11];
-    //             obj['created_at']=invoice[12];
-    //             obj['total']=invoice[13];
-
-    //             list.push(obj)
-    //         })
-    //         this.setState({list})
-    //     })
-    //     .catch(function (error) {
-    //         console.log(error); 
-    //     });
-    // }
 
     render() {
 
-        const { classes,open, setInvoice, invoiceList,showInvoices, currInvoice } = this.props;
-
-        console.log('noww')
+        const { classes,open, setInvoice, invoiceList, currInvoice } = this.props;
 
         return (
                 <Drawer
@@ -108,12 +72,29 @@ class DrawerClass extends React.Component {
                 >
                     <Search
                         placeholder="Search Invoice"
-                        onSearch={(value) => showInvoices(value)}
+                        onSearch={this.search}
                         enterButton
                         className={classes.search}
                     />
+                    {this.state.showResults ? 
+                        <div className={classes.left}>
+                            <Typography className={classes.showResults} variant='subheading' color='primary'>Search Results</Typography>
+                        </div>
+                    :""}
                     <List component="nav">
-                        {invoiceList.map((invoice,index) => <InvoiceItem currInvoice={currInvoice} invoice={invoice} setInvoice={setInvoice} id={index}/>)}
+                        { invoiceList.length > 0 ?
+                            invoiceList.map((invoice,index) => 
+                                <InvoiceItem 
+                                    currInvoice={currInvoice} 
+                                    invoice={invoice} 
+                                    setInvoice={setInvoice} 
+                                    id={index}
+                                    key={index}
+                                />
+                            )
+                            :
+                            <Typography className={classes.center} variant='subheading' color='textSecondary'>No results Found</Typography>
+                        }
                     </List>
                 </Drawer>
         );

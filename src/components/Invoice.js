@@ -119,7 +119,7 @@ class Invoice extends React.Component {
                     </div>
 
                     <div className={classes.body}>  
-                        {items !== undefined ? items.map((item) => <Row item={item}/>): ""}
+                        {items !== undefined ? items.map((item,key) => <Row item={item} key={key}/>): ""}
                     </div>
 
                     <Grid container spacing={24} className={classes.vertical}>

@@ -81,15 +81,19 @@ class Content extends React.Component {
     if (invoice === "all")
       url =  'http://localhost:5000/showAll'
 
-    console.log('here')
+    var invoiceDetails = new FormData();
+
+    invoiceDetails.set("invoice_id", invoice);
+
     axios({
       method: 'post',
       url: url,
-      // data : "",
-      config: { headers: {'Content-Type': 'multipart/form-data' ,'Access-Control-Allow-Origin': '*'}}
+      data : invoice === "all" ? "" : invoiceDetails,
+      config: { headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'multipart/form-data', "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}}
     })
     .then(res => {
       var data = res.data, obj;
+      console.log(data)
       var list = [];
       data.map((invoice) => {
         obj = {};
@@ -112,7 +116,9 @@ class Content extends React.Component {
 
       })
 
-      this.setState({invoiceList : list})
+      this.setInvoice(0)
+
+      this.setState({invoiceList : list, currInvoice : 0})
 
     })
     .catch(function (error) {
@@ -204,9 +210,7 @@ class Content extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          {invoiceList.length > 0 ? 
             <Drawer open={open} invoiceList={invoiceList} setInvoice={this.setInvoice} showInvoices={this.showInvoices} currInvoice={currInvoice}/>
-          :""}
           <main
             className={classNames(classes.content, classes[`content-left`], {
               [classes.contentShift]: open,
@@ -215,9 +219,7 @@ class Content extends React.Component {
           >
             <CreateInvoice  showInvoices={this.showInvoices}/>
 
-            {invoiceList.length > 0 ? 
-              <Invoice invoice={invoiceList[currInvoice]} items={items}/>
-            :""}
+            <Invoice invoice={invoiceList[currInvoice]} items={items}/>
             
           </main>
         </div>

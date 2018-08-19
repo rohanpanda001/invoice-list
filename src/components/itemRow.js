@@ -31,8 +31,7 @@ const styles = {
 function Row(props) {
 
     const { classes, item } = props;
-
-    console.log(item)
+    
     return (
         <div className={classes.root}>
             <Grid container spacing={24} className={classes.vertical}>

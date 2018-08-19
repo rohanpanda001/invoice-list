@@ -37,7 +37,7 @@ const styles = {
         height : 30
     },
     current : {
-        backgroundColor : '#7cba2f'
+        backgroundColor : '#d3d3d3'
     },
 };
 
@@ -60,7 +60,7 @@ function Item(props) {
                 </div>
             </Grid>
             <Grid item xs={4}>
-            <div className={classNames('row',classes.right)}>
+                <div className={classNames('row',classes.center)}>
                     <Typography variant='caption' color='textSecondary'>{invoice.created_at}</Typography>
                 </div>
                 <div className={classNames('row',classes.right,classes.top)}>
