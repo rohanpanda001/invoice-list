@@ -248,10 +248,12 @@ class SimpleDialog extends React.Component {
     }
 
     handleSuccess = () => {
-        var hash = createHash(16);
+        var hash = createHash(16)
         this.setState({order_no : hash, success: false})
         this.onAbort()
         this.props.handleClose()
+
+        this.props.showInvoices('all')
 
     }
 

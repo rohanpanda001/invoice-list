@@ -49,6 +49,7 @@ class CreateInvoice extends React.Component {
                     <AddIcon />
                 </Button>
                 <Dialog
+                    showInvoices={this.props.showInvoices}
                     open={this.state.open}
                     handleClose={this.handleClose}
                 />
