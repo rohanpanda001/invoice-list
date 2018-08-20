@@ -93,7 +93,7 @@ class DrawerClass extends React.Component {
                                 />
                             )
                             :
-                            <Typography className={classes.center} variant='subheading' color='textSecondary'>No results Found</Typography>
+                            <Typography className={classes.center} variant='subheading' color='textSecondary'>{this.state.showResults ? "No results Found" : "No Invoice Found"}</Typography>
                         }
                     </List>
                 </Drawer>
