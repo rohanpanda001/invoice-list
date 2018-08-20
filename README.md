@@ -1,7 +1,7 @@
 
-## Available Scripts
+### git clone
 
-In the project directory, first run:
+Clone the repo
 
 ### `npm install`
 

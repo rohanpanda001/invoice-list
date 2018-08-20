@@ -113,7 +113,8 @@ class SimpleDialog extends React.Component {
 
     handleSave = () => {
         const {customer, product, items, order_no, tax, discount, subtotal, total} = this.state;
-        // console.log(customer)
+
+        console.log(items)
 
         var invoiceDetails = new FormData();
 
@@ -271,7 +272,7 @@ class SimpleDialog extends React.Component {
         const { items } = this.state;
         var filledUp = true
         for(var i = 0 ; i < items.length ; i++){
-            if(items[i].name===undefined || items[i].price===undefined || items[i].quantity===undefined) 
+            if(items[i].name===undefined || items[i].price===undefined || items[i].quantity===undefined || items[i].price === 0) 
             {
                 filledUp =false 
             }
